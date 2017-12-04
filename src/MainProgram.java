@@ -13,6 +13,7 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 	Histogram hist;
 	Robot robot;
 	Map map;
+	Double[][] predictionMatrix;
 	double min, max; 
 	int numbersegments;
 	
@@ -23,8 +24,8 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 	*/
 	static private int BOX_DEPTH = 37; // profundidade da caixa
 	static private int WALL_DISTANCE = 80; // distância do sonar à parede
-	static private int LENGHTMAP = 585; // comprimento (em cm) máximo do mapa
-	static private int DISCRET_SIZE = 120; // número de células da discretização
+	static private int LENGHTMAP = 586; // comprimento (em cm) máximo do mapa
+	static private int DISCRET_SIZE = 293; // número de células da discretização
 	
 	public MainProgram(double mapsize, int numbersegments, Robot robot, Map map) {
 		this.robot = robot;
@@ -55,6 +56,7 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 
 
 		initializeWithUniform(bel);
+		//inicializa
 		printHistogram();
 	}
 
@@ -80,10 +82,27 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 		/*
 			Insira o código de atualização da crença do robô dada uma leitura 'distance' do sonar
 		*/
+		Boolean sonarBox = distance < 1.2 * (WALL_DISTANCE - BOX_DEPTH);
+		Double probSum = 0.0;
+		for (int i = 0; i < bel.size(); i++) {
+			bel.set(i, bel.get(i) * hasBoxAt(i));
+			probSum += bel.get(i) * hasBoxAt(i);
+		}
+		for (int i = 0; i < bel.size(); i++) {
+			bel.set(i, bel.get(i) / probSum);
+		}
 		printHistogram();
 	}
-	
-	void prediction (double delta) {
+
+	private Double hasBoxAt(int i) {
+		for (Double[] box : map) {
+			if (i > box[0] && i < box[1])
+				return 1.0;
+		}
+		return 0.0;
+	}
+
+	private void prediction (double delta) {
 		/*
 			Insira o código de predição da crença do robô dado um deslocamento 'delta'
 		*/
@@ -91,7 +110,7 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 	}
 	
     public static double pdf(double x) {
-        return Math.exp(-x*x / 2) / Math.sqrt(2 * Math.PI); // return pdf(x) = standard Gaussian pdf
+        return Math.exp(-x * x / 2) / Math.sqrt(2 * Math.PI); // return pdf(x) = standard Gaussian pdf
     }
 
     public static double pdf(double x, double mu, double sigma) { 
@@ -197,10 +216,6 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 
 	public static void main(String[] args) {
 		Map map  = new Map();
-		
-		Edite o código, para adicionar as dimensões das caixas do mapa e renomear o brick
-
-		Exemplo: 
 			map.add(20, 30); // adiciona uma caixa que inicia que ocupa a posição no eixo-x de 84 a 110 cm
 			map.add(101, 131);
 			map.add(212, 242);
