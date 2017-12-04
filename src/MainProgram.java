@@ -128,6 +128,18 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 		/*
 			Insira o código de predição da crença do robô dado um deslocamento 'delta'
 		*/
+		Double probSum = 0.0;
+		for (int i = 0; i < bel.size(); i++) {
+			Double cellSum = 0.0;
+			for (int j = 0; j < bel.size(); j++) {
+				cellSum += bel.get(j) * predictionMatrix[i][j];
+			}
+			bel.set(i, cellSum);
+			probSum += cellSum;
+		}
+		for (int i = 0; i < bel.size(); i++) {
+			bel.set(i, bel.get(i) / probSum);
+		}
 		printHistogram();
 	}
 	
