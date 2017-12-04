@@ -26,6 +26,7 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 	static private int WALL_DISTANCE = 48; // distância do sonar à parede
 	static private int LENGHTMAP = 586; // comprimento (em cm) máximo do mapa
 	static private int DISCRET_SIZE = 293; // número de células da discretização
+    static private double CEL_SIZE = 2.0;
 	
 	public MainProgram(double mapsize, int numbersegments, Robot robot, Map map) {
 		this.robot = robot;
@@ -58,27 +59,15 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 		}
 
 		initializeWithUniform(bel);
-		initPredictionMatrix();
         printHistogram();
 	}
 
-    private void initPredictionMatrix() {
+    private void initPredictionMatrix(double delta) {
         int n = bel.size();
         predictionMatrix = new Double[n][n];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                if (i == j) {
-                    predictionMatrix[i][j] = i == (n - 1) ? 1 : 0.25;
-                }
-                else if (i == (j + 1)) {
-                    predictionMatrix[i][j] = 0.5;
-                }
-                else if (i == (j + 2)) {
-                    predictionMatrix[i][j] = 0.25;
-                }
-                else {
-                    predictionMatrix[i][j] = 0.0;
-                }
+                predictionMatrix[i][j] = pdf(i, j + delta, 40.0 / CEL_SIZE); 
             }
         }
     }
