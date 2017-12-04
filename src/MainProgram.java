@@ -94,14 +94,10 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 			Insira o código de atualização da crença do robô dada uma leitura 'distance' do sonar
 		*/
 		Boolean sonarBox = distance < 1.2 * (WALL_DISTANCE - BOX_DEPTH);
-		Double probSum = 0.0;
 		for (int i = 0; i < bel.size(); i++) {
 			bel.set(i, bel.get(i) * hasBoxAt(i));
-			probSum += bel.get(i) * hasBoxAt(i);
 		}
-		for (int i = 0; i < bel.size(); i++) {
-			bel.set(i, bel.get(i) / probSum);
-		}
+		bel.normalize();
 		printHistogram();
 	}
 
@@ -117,18 +113,15 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 		/*
 			Insira o código de predição da crença do robô dado um deslocamento 'delta'
 		*/
-		Double probSum = 0.0;
+		initPredictionMatrix(10);
 		for (int i = 0; i < bel.size(); i++) {
 			Double cellSum = 0.0;
 			for (int j = 0; j < bel.size(); j++) {
 				cellSum += bel.get(j) * predictionMatrix[i][j];
 			}
 			bel.set(i, cellSum);
-			probSum += cellSum;
 		}
-		for (int i = 0; i < bel.size(); i++) {
-			bel.set(i, bel.get(i) / probSum);
-		}
+		bel.normalize();
 		printHistogram();
 	}
 	
