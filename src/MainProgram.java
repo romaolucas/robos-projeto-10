@@ -53,7 +53,9 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 
 	private void initializeBelief() { 
 		bel = new DiscreteSpace();
-
+		for (int i = 0; i < DISCRET_SIZE; i++) {
+			bel.add(0.0);
+		}
 
 		initializeWithUniform(bel);
 		initPredictionMatrix();
@@ -83,9 +85,8 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 
 	private void initializeWithUniform(DiscreteSpace bel) {
 		int n = bel.size();
-		bel.clear();
 		for (int i = 0; i < n; i++) {
-			bel.add(1.0 / n);
+			bel.set(i, (1.0 / n));
 		}
 	}
 
@@ -93,10 +94,9 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 		int n = bel.size();
         double remainingCertainty = 1.0 - certainty;
 		double cellCertainty = remainingCertainty / (bel.size() - 1);
-		bel.clear();
 		for (int i = 0; i < n; i++) {
-			if (i == posX) bel.add(certainty);
-			else bel.add(cellCertainty);
+			if (i == posX) bel.set(i, certainty);
+			else bel.set(i, cellCertainty);
 		} 
 	} 
 
