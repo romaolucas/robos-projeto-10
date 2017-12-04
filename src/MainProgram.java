@@ -22,8 +22,8 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 	/*
 	Edite as variáveis, modificando com os valores específicos do mapa
 	*/
-	static private int BOX_DEPTH = 37; // profundidade da caixa
-	static private int WALL_DISTANCE = 80; // distância do sonar à parede
+	static private int BOX_DEPTH = 26; // profundidade da caixa
+	static private int WALL_DISTANCE = 48; // distância do sonar à parede
 	static private int LENGHTMAP = 586; // comprimento (em cm) máximo do mapa
 	static private int DISCRET_SIZE = 293; // número de células da discretização
 	
@@ -56,9 +56,30 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 
 
 		initializeWithUniform(bel);
-		//inicializa
-		printHistogram();
+		initPredictionMatrix();
+        printHistogram();
 	}
+
+    private void initPredictionMatrix() {
+        int n = bel.size();
+        predictionMatrix = new Double[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i == j) {
+                    predictionMatrix[i][j] = i == (n - 1) ? 1 : 0.25;
+                }
+                else if (i == (j + 1)) {
+                    predictionMatrix[i][j] = 0.5;
+                }
+                else if (i == (j + 2)) {
+                    predictionMatrix[i][j] = 0.25;
+                }
+                else {
+                    predictionMatrix[i][j] = 0.0;
+                }
+            }
+        }
+    }
 
 	private void initializeWithUniform(DiscreteSpace bel) {
 		int n = bel.size();
@@ -69,7 +90,8 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 	}
 
 	private void initializeWithCertainty(DiscreteSpace bel, int posX, double certainty) {
-		double remainingCertainty = 1.0 - certainty;
+		int n = bel.size();
+        double remainingCertainty = 1.0 - certainty;
 		double cellCertainty = remainingCertainty / (bel.size() - 1);
 		bel.clear();
 		for (int i = 0; i < n; i++) {
