@@ -59,7 +59,8 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 			bel.add(0.0);
 		}
 
-		initializeWithUniform(bel);
+		initializeWithCertainty(bel, 0, 0.5);
+		// initializeWithUniform(bel);
         printHistogram();
 	}
 
@@ -68,7 +69,7 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
         predictionMatrix = new Double[n][n];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                predictionMatrix[i][j] = pdf(i, j + delta, 40.0 / CEL_SIZE); 
+                predictionMatrix[i][j] = pdf(i, j + delta, 1.5); 
             }
         }
     }
@@ -80,13 +81,10 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 		}
 	}
 
-	private void initializeWithCertainty(DiscreteSpace bel, int posX, double certainty) {
+	private void initializeWithCertainty(DiscreteSpace bel, int posX, double sigma) {
 		int n = bel.size();
-        double remainingCertainty = 1.0 - certainty;
-		double cellCertainty = remainingCertainty / (bel.size() - 1);
 		for (int i = 0; i < n; i++) {
-			if (i == posX) bel.set(i, certainty);
-			else bel.set(i, cellCertainty);
+			bel.set(i, pdf(i, posX, sigma));
 		} 
 	} 
 
@@ -108,7 +106,7 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 
 	private Boolean hasBoxAt(int i) {
 		for (Double[] box : map) {
-			if (i > box[0] && i < box[1])
+			if (i >= box[0] && i <= box[1])
 				return true;
 		}
 		return false;
@@ -118,7 +116,7 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 		/*
 			Insira o código de predição da crença do robô dado um deslocamento 'delta'
 		*/
-		initPredictionMatrix(10);
+		initPredictionMatrix(delta);
 		DiscreteSpace newBel = new DiscreteSpace();
 		for (int i = 0; i < bel.size(); i++) {
 			Double cellSum = 0.0;
@@ -249,7 +247,7 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 
 	public static void main(String[] args) {
 		Map map  = new Map();
-			// map.add(20, 30); // adiciona uma caixa que inicia que ocupa a posição no eixo-x de 84 a 110 cm
+			map.add(20, 50); // adiciona uma caixa que inicia que ocupa a posição no eixo-x de 84 a 110 cm
 			map.add(101, 131);
 			// map.add(212, 242);
 			// map.add(346, 376);
