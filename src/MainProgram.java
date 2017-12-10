@@ -11,11 +11,12 @@ import javax.swing.SwingUtilities;
 
 public class MainProgram extends JPanel implements KeyListener, WindowListener {
 	Histogram hist;
-	Robot robot;
+	// Robot robot;
 	Map map;
 	Double[][] predictionMatrix;
 	double min, max; 
 	int numbersegments;
+	int x = 0;
 	
 	private DiscreteSpace bel;
 	
@@ -28,8 +29,8 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 	static private int DISCRET_SIZE = 293; // número de células da discretização
     static private double CEL_SIZE = 2.0;
 	
-	public MainProgram(double mapsize, int numbersegments, Robot robot, Map map) {
-		this.robot = robot;
+	public MainProgram(double mapsize, int numbersegments, Map map) {
+		// this.robot = robot;
 		max = mapsize;
 		min = 0;
 		this.map = map;
@@ -95,18 +96,22 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 		*/
 		Boolean sonarBox = distance < 1.2 * (WALL_DISTANCE - BOX_DEPTH);
 		for (int i = 0; i < bel.size(); i++) {
-			bel.set(i, bel.get(i) * hasBoxAt(i));
+			if (sonarBox == hasBoxAt(i)) {
+				bel.set(i, bel.get(i));
+			} else {
+				bel.set(i, 0.0);
+			}
 		}
 		bel.normalize();
 		printHistogram();
 	}
 
-	private Double hasBoxAt(int i) {
+	private Boolean hasBoxAt(int i) {
 		for (Double[] box : map) {
 			if (i > box[0] && i < box[1])
-				return 1.0;
+				return true;
 		}
-		return 0.0;
+		return false;
 	}
 
 	private void prediction (double delta) {
@@ -114,13 +119,15 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 			Insira o código de predição da crença do robô dado um deslocamento 'delta'
 		*/
 		initPredictionMatrix(10);
+		DiscreteSpace newBel = new DiscreteSpace();
 		for (int i = 0; i < bel.size(); i++) {
 			Double cellSum = 0.0;
 			for (int j = 0; j < bel.size(); j++) {
 				cellSum += bel.get(j) * predictionMatrix[i][j];
 			}
-			bel.set(i, cellSum);
+			newBel.add(cellSum);
 		}
+		bel = newBel;
 		bel.normalize();
 		printHistogram();
 	}
@@ -139,29 +146,39 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-
+		System.out.println("to em: " + x);
 		char input = e.getKeyChar();
 		switch (input) {
 		case 'm': // envia comando de movimento ao robô de uma distância 'dist' inserida pelo usuário
 			double dist = askDouble("Distancia (cm)");
-			robot.move(dist);
+			// robot.move(dist);
 			prediction(dist);
 			break;
 		case 'r': // reset
+			x = 0;
 			initializeBelief();
 			break;
 		}
 		
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_SPACE: // barra de espaco para leitura do sonar 
-			robot.read(this);
+			// robot.read(this);
+			double dist;
+			System.out.println("tem box?" + hasBoxAt(x));
+			if (hasBoxAt(x) == true) {
+				dist = 0;
+
+			} else dist = 2 * (WALL_DISTANCE - BOX_DEPTH);
+			correction(dist);
 			break;
 		case KeyEvent.VK_UP: // seta cima, mover para frente em 10 cm 
-			robot.move(10);
+			// robot.move(10);
+			x += 10;
 			prediction(10);
 			break;
 		case KeyEvent.VK_DOWN: // seta baixo, mover para trás em 10 cm
-			robot.move(-10);
+			// robot.move(-10);
+			x -= 10;
 			prediction(-10);
 			break;
 		}
@@ -208,9 +225,9 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 	@Override
 	public void windowClosing(WindowEvent arg0) {
 		System.err.println("Fechando...");
-		if (robot == null)
-			return;
-		robot.disconnect();		
+		// if (robot == null)
+		// 	return;
+		// robot.disconnect();		
 	}
 
 	@Override
@@ -232,18 +249,18 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 
 	public static void main(String[] args) {
 		Map map  = new Map();
-			map.add(20, 30); // adiciona uma caixa que inicia que ocupa a posição no eixo-x de 84 a 110 cm
+			// map.add(20, 30); // adiciona uma caixa que inicia que ocupa a posição no eixo-x de 84 a 110 cm
 			map.add(101, 131);
-			map.add(212, 242);
-			map.add(346, 376);
-			map.add(422, 452);
-			map.add(526, 556);			
-		Robot robot =  new Robot("NXT"); // altere para o nome do brick
-		if (robot.connect() == false) return;
+			// map.add(212, 242);
+			// map.add(346, 376);
+			// map.add(422, 452);
+			// map.add(526, 556);			
+		// Robot robot =  new Robot("NXT"); // altere para o nome do brick
+		// if (robot.connect() == false) return;
 		
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				new MainProgram(LENGHTMAP, DISCRET_SIZE, robot, map);
+				new MainProgram(LENGHTMAP, DISCRET_SIZE, map);
 			}
 		});
 	}
