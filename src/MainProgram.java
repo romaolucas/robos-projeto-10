@@ -172,7 +172,7 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		System.out.println("to em: " + x);
+		System.out.println("Localizacao real em: " + x);
 		char input = e.getKeyChar();
 		switch (input) {
 		case 'm': // envia comando de movimento ao robô de uma distância 'dist' inserida pelo usuário
@@ -190,8 +190,7 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 		case KeyEvent.VK_SPACE: // barra de espaco para leitura do sonar 
 			// robot.read(this);
 			double dist;
-			System.out.println("tem box?" + hasBoxAt(x));
-			System.out.println("max em " + 2 * getMax());
+			System.out.println("Crenca maxima esta na celula de indice " + getMax());
 			if (hasBoxAt(x) == true) {
 				dist = 0;
 
