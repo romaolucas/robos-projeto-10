@@ -16,7 +16,8 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 	Double[][] predictionMatrix;
 	double min, max; 
 	int numbersegments;
-	int x = 0;
+	// int x = 0;
+	int x = 75;
 	
 	private DiscreteSpace bel;
 	
@@ -59,8 +60,8 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 			bel.add(0.0);
 		}
 
-		// initializeWithCertainty(bel, 0, 2);
-		initializeWithUniform(bel);
+		initializeWithCertainty(bel, 75 / 2, 40);
+		// initializeWithUniform(bel);
         printHistogram();
 	}
 
@@ -72,6 +73,22 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
                 predictionMatrix[i][j] = pdf(i, j + delta, 2); 
             }
         }
+
+        for (int j = 0; j < n; j++) {
+        	double colSum = 0.0;
+        	for (int i = 0; i < n; i++) {
+        		colSum += predictionMatrix[i][j];
+        	}
+        	for (int i = 0; i < n; i++) {
+        		predictionMatrix[i][j] /= colSum;
+        	}
+        }
+
+        for (int i = 0; i < n; i++) {
+        	predictionMatrix[n - 1][i] = 0.0;
+        	if (i == n - 1) predictionMatrix[n-1][i] = 1.0;
+        }
+
     }
 
 	private void initializeWithUniform(DiscreteSpace bel) {
@@ -86,6 +103,7 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 		for (int i = 0; i < n; i++) {
 			bel.set(i, pdf(i, posX, sigma));
 		} 
+		bel.normalize();
 	} 
 
 	private int getMax() {
@@ -106,9 +124,7 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 		*/
 		Boolean sonarSawBox = distance < 1.2 * (WALL_DISTANCE - BOX_DEPTH);
 		for (int i = 0; i < bel.size(); i++) {
-			if (sonarSawBox == hasBoxAt(i)) {
-				bel.set(i, bel.get(i));
-			} else {
+			if (sonarSawBox != hasBoxAt(i * 2)) {
 				bel.set(i, 0.0);
 			}
 		}
@@ -175,7 +191,7 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 			// robot.read(this);
 			double dist;
 			System.out.println("tem box?" + hasBoxAt(x));
-			System.out.println("max em " + getMax());
+			System.out.println("max em " + 2 * getMax());
 			if (hasBoxAt(x) == true) {
 				dist = 0;
 
@@ -259,13 +275,13 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 	
 
 	public static void main(String[] args) {
-		Map map  = new Map();
+		final Map map  = new Map();
 			map.add(20, 50); // adiciona uma caixa que inicia que ocupa a posição no eixo-x de 84 a 110 cm
 			map.add(101, 131);
-			// map.add(212, 242);
-			// map.add(346, 376);
-			// map.add(422, 452);
-			// map.add(526, 556);			
+			map.add(212, 242);
+			map.add(346, 376);
+			map.add(422, 452);
+			map.add(526, 556);			
 		// Robot robot =  new Robot("NXT"); // altere para o nome do brick
 		// if (robot.connect() == false) return;
 		
