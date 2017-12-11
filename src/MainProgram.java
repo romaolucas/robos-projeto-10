@@ -59,8 +59,8 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 			bel.add(0.0);
 		}
 
-		initializeWithCertainty(bel, 0, 0.5);
-		// initializeWithUniform(bel);
+		// initializeWithCertainty(bel, 0, 2);
+		initializeWithUniform(bel);
         printHistogram();
 	}
 
@@ -69,7 +69,7 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
         predictionMatrix = new Double[n][n];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                predictionMatrix[i][j] = pdf(i, j + delta, 1.5); 
+                predictionMatrix[i][j] = pdf(i, j + delta, 2); 
             }
         }
     }
@@ -88,13 +88,25 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 		} 
 	} 
 
+	private int getMax() {
+		int maxIndex = 0;
+		Double maxValue = 0.0;
+		for (int i = 0; i < bel.size(); i++) {
+			if (bel.get(i) > maxValue) {
+				maxIndex = i;
+				maxValue = bel.get(i);
+			}
+		}
+		return maxIndex;
+	}
+
 	private void correction (double distance) { 
 		/*
 			Insira o código de atualização da crença do robô dada uma leitura 'distance' do sonar
 		*/
-		Boolean sonarBox = distance < 1.2 * (WALL_DISTANCE - BOX_DEPTH);
+		Boolean sonarSawBox = distance < 1.2 * (WALL_DISTANCE - BOX_DEPTH);
 		for (int i = 0; i < bel.size(); i++) {
-			if (sonarBox == hasBoxAt(i)) {
+			if (sonarSawBox == hasBoxAt(i)) {
 				bel.set(i, bel.get(i));
 			} else {
 				bel.set(i, 0.0);
@@ -163,6 +175,7 @@ public class MainProgram extends JPanel implements KeyListener, WindowListener {
 			// robot.read(this);
 			double dist;
 			System.out.println("tem box?" + hasBoxAt(x));
+			System.out.println("max em " + getMax());
 			if (hasBoxAt(x) == true) {
 				dist = 0;
 
